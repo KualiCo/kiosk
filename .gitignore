@@ -1,0 +1,16 @@
+.*.swp
+cwc
+
+# Editor
+.idea
+.idea/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+*.log
+
+.DS_store
