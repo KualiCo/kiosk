@@ -168,6 +168,7 @@ titleAnimation { 0% {
 .slideshow li:nth-child(2) span {
 	z-index:999;
   background-image: url(../slides/2.jpg);
+  
   -webkit-animation-delay: 6s;
   -moz-animation-delay: 6s;
   animation-delay: 6s;
