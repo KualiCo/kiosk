@@ -18,7 +18,7 @@ $(document).ready(function () {
 
 function timerIncrement() {
     idleTime = idleTime + 1;
-    if (idleTime > 9 && !screenSaverActive) { // 10 seconds
+    if (idleTime > 19 && !screenSaverActive) { // 20 seconds
         startScreenSaver();
     }
 }
