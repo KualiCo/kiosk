@@ -4,8 +4,7 @@ body {
   font-family: Lucida Grande, Arial, sans-serif;
 }
 
-#kuali-menu,
-#home { 
+#kuali-menu { 
   padding: 12px;
   color: white;
   width: 25px;
@@ -21,6 +20,7 @@ body {
 #controls {
   padding: 3px;
   border-bottom: solid 1px #ccc;
+
 }
 
 #controls button,
@@ -40,8 +40,8 @@ button[disabled]:hover {
 
 button:hover,
 input[type="submit"]:hover {
-  border-color: #ccc;
-  background: -webkit-linear-gradient(top, #f2f2f2 0%, #cccccc 99%);
+  border-color: transparent; /* #ccc; */
+  background: transparent; /* -webkit-linear-gradient(top, #f2f2f2 0%, #cccccc 99%); */
 }
 
 /* These glyphs are on the small side, make them look more natural when
@@ -63,13 +63,13 @@ compared to the back/forward buttons */
 
 #controls {
   display: -webkit-flex;
-  -webit-flex-direction: column;
+  -webit-flex-direction: column-reverse;
 }
 
 #controls #location-form {
   -webkit-flex: 1;
   display: -webkit-flex;
-  -webit-flex-direction: column;
+  -webit-flex-direction: column-reverse;
 }
 
 #controls #center-column {

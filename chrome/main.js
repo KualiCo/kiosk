@@ -1,3 +1,5 @@
+chrome.power.requestKeepAwake("display");
+
 /**
  * Listens for the app launching then creates the window
  *

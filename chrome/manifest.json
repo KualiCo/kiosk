@@ -15,7 +15,7 @@
   "minimum_chrome_version": "31.0.0.0",
   "name": "KualiCo Educause Kiosk",
   "permissions": [
-    "webview", "contextMenus"
+    "webview", "contextMenus", "power"
  ],
   "kiosk_enabled": true
 }

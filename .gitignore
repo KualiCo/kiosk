@@ -1,5 +1,8 @@
 .*.swp
 cwc
+*.crx
+*.pem
+
 
 # Editor
 .idea

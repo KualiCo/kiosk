@@ -5,44 +5,12 @@ onload = function() {
   var webview = document.querySelector('webview');
   doLayout();
 
-  document.querySelector('#back').onclick = function() {
-    webview.back();
-  };
-
-  document.querySelector('#forward').onclick = function() {
-    webview.forward();
-  };
-  
-  document.querySelector('#reset').onclick = function() {
-    window.close();
-  };
-
   document.querySelector('#kuali-menu').onclick = function() {
     navigateTo('https://educause.kuali.co/');
   };
 
-  document.querySelector('#reload').onclick = function() {
-    if (isLoading) {
-      webview.stop();
-    } else {
-      webview.reload();
-    }
-  };
-  document.querySelector('#reload').addEventListener(
-    'webkitAnimationIteration',
-    function() {
-      if (!isLoading) {
-        document.body.classList.remove('loading');
-      }
-    });
-
   document.querySelector('#terminate').onclick = function() {
     webview.terminate();
-  };
-
-  document.querySelector('#location-form').onsubmit = function(e) {
-    e.preventDefault();
-    navigateTo(document.querySelector('#location').value);
   };
 
   webview.addEventListener('exit', handleExit);
@@ -60,12 +28,10 @@ function navigateTo(url) {
 
 function doLayout() {
   var webview = document.querySelector('webview');
-  var controls = document.querySelector('#controls');
-  var controlsHeight = controls.offsetHeight;
   var windowWidth = document.documentElement.clientWidth;
   var windowHeight = document.documentElement.clientHeight;
   var webviewWidth = windowWidth;
-  var webviewHeight = windowHeight - controlsHeight;
+  var webviewHeight = windowHeight;
 
   webview.style.width = webviewWidth + 'px';
   webview.style.height = webviewHeight + 'px';
