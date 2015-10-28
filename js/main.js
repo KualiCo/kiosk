@@ -1,6 +1,5 @@
 // configurables
-var idle = 0
-var inactivityPeriod = 20
+var inactivityPeriod = 15
 var slideRotation = 5
 var slides = [
   "slides/01.jpg" ,
@@ -44,18 +43,24 @@ for (i=0; i < slides.length; i++) {
 var index = Math.floor((Math.random() * slides.length))
 debug("index=" + index)
 
+// stateful vars
+var idle = 0  // how idle is the system?
+var delay = 0 // used to slow down killing screensaver on mouse move
 $(document).ready(function () {
   debug("init (" + slideRotation + ")")
   i_idle = setInterval(idleInterval, 1000)
 
   //Zero the idle timer on mouse movement.
   $(this).mousemove(function (e) {
-      idle = 0
+    idle = 0
+    delay++
+    if (delay > 10) { // arbitrary # of events
       stopScreenSaver()
+    }
   })
   $(this).keypress(function (e) {
-      idle = 0
-      stopScreenSaver()
+    idle = 0
+    stopScreenSaver()
   })
 })
 
@@ -82,6 +87,7 @@ function slideInterval() {
 // startup the screensaver
 function startScreenSaver() {
   debug("startScreenSaver()")
+  delay = 0 // slow down an accidental re-trigger
   screenSaverActive = true
   base = document.getElementById("slideBase")
   base.style.visibility = "visible"
