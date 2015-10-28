@@ -171,7 +171,7 @@ titleAnimation { 0% {
   	margin: 50px auto;
   }
   
-   .button-container a{
+  .button-container-a {
   	display: block;
   	width: 100%;
   	height: 50px;
@@ -189,12 +189,16 @@ titleAnimation { 0% {
   	transition: background-color .1s
   }
 
+  .button-container-a a {
+  	color: #416073;
+  	text-decoration: none;
+  }
   
-  .button-container a:hover{
+  .button-container-a a:hover{
   	background-color: #ffffff;
   }
   
-  .button-container a:active{
+  .button-container-a a:active{
   	background-color: #dfdfdf;
   }
   
