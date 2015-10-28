@@ -5,20 +5,19 @@
 <meta charset="utf-8">
 <title>Educause - Kuali</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/variant.css">
 
 <style>
 .slidebase {
-  z-index: 1;
+  z-index: 1000;
   background-attachment:fixed;
   background-repeat: no-repeat;
-/*Use center center in place of 300 200 to center bg image*/
-  background-position: 300 200;
   margin: 0;
 }
 .slide {
   position: fixed;
   width: 100%;
+  height: 100%;
   top: 0;
   left: 0;
   opacity: 0;
@@ -27,81 +26,108 @@
 </style>
 
 <script language="JavaScript1.2">
-var idleTime = 0
-var inactivityStart = 20
-var screenSaverActive = false
-
-/* you must supply your own immages */
-var bgImages= new Array()
+// configurables
+var idle = 0
+var inactivityPeriod = 20
+var slideRotation = 5
 var slides = [
- [ "slides/1.jpg", 5],
- [ "slides/2.jpg", 30 ],
- [ "slides/3.jpg", 2 ],
- [ "slides/4.jpg", 20 ],
+  "slides/01.jpg" ,
+  "slides/02.jpg" ,
+  "slides/03.jpg" ,
+  "slides/04.jpg" ,
+  "slides/05.jpg" ,
+  "slides/06.jpg" ,
+  "slides/07.jpg" ,
+  "slides/08.jpg" ,
+  "slides/09.jpg" ,
+  "slides/10.jpg" ,
+  "slides/11.jpg" ,
+  "slides/12.jpg" ,
+  "slides/13.jpg" ,
+  "slides/14.jpg" ,
+  "slides/15.jpg" ,
+  "slides/16.jpg" ,
+  "slides/17.jpg" ,
+  "slides/18.jpg" ,
+  "slides/19.jpg" ,
+  "slides/20.jpg" ,
+  "slides/21.jpg" ,
 ]
-var imageA = 0 // toggle which image is showing (crossfade?)
+
+// not configurable
+var bgImages= new Array()
+var screenSaverActive = false
 
 //preload images
 var slideCache = new Array()
+var i_idle = null
+var i_slide = null
 
 for (i=0; i < slides.length; i++) {
   slideCache[i] = new Image()
-  slideCache[i].src = slides[i][0]
+  slideCache[i].src = slides[i]
 }
 
 // start a random slide
 var index = Math.floor((Math.random() * slides.length))
-console.log("index=" + index)
-setTimeout(rotateSlide, slides[index][1] * 1000)
+debug("index=" + index)
 
 $(document).ready(function () {
-    //Increment the idle time counter every second.
-    setTimeout(timerIncrement, 1000)
-    console.log("idle?")
+  debug("init (" + slideRotation + ")")
+  i_idle = setInterval(idleInterval, 1000)
 
-    //Zero the idle timer on mouse movement.
-    $(this).mousemove(function (e) {
-        idleTime = 0
-        stopScreenSaver()
-    })
-    $(this).keypress(function (e) {
-        idleTime = 0
-        stopScreenSaver()
-    })
+  //Zero the idle timer on mouse movement.
+  $(this).mousemove(function (e) {
+      idle = 0
+      stopScreenSaver()
+  })
+  $(this).keypress(function (e) {
+      idle = 0
+      stopScreenSaver()
+  })
 })
 
+function debug(s) {
+  // console.log(s)
+}
+
 // hooked from setInterval above
-function timerIncrement() {
-    idleTime = idleTime + 1
-    if (idleTime > inactivityStart && !screenSaverActive) {
-        startScreenSaver()
-    }
-    setTimeout(timerIncrement, 1000)
+function idleInterval() {
+  idle++
+  debug("idle " + idle)
+  if (idle > inactivityPeriod && !screenSaverActive) {
+      startScreenSaver()
+  }
+}
+
+function slideInterval() {
+  debug("slide++")
+  if (screenSaverActive) {
+    rotateSlide()
+  }
 }
 
 // startup the screensaver
 function startScreenSaver() {
+  debug("startScreenSaver()")
   screenSaverActive = true
-  rotateSlide()
   base = document.getElementById("slideBase")
   base.style.visibility = "visible"
-   //    slide = document.getElementById("slideBase")
-    
+  rotateSlide()
+  i_slide = setInterval(slideInterval, slideRotation * 1000)
 }
 
 // stop the screensaver
 function stopScreenSaver() {
-  screenSaverActive = false
-  base = document.getElementById("slideBase")
-  base.style.visibility = "hidden"
-  // hide slideBase
-  //if (screenSaverActive) {
-    //document.getElementById("screensaver").className = "slideshowWrapper"
-  //  screenSaverActive = false
-  //}
-}
-
-function showSlide(x) {
+  if (screenSaverActive) {
+      debug("stopScreenSaver()")
+	  screenSaverActive = false
+	  base = document.getElementById("slideBase")
+	  base.style.visibility = "hidden"
+	  s = document.getElementById("slide")
+	  s.style.visibility = "hidden"
+      clearInterval(i_slide)
+  }
 }
 
 function rotateSlide() {
@@ -114,52 +140,23 @@ function rotateSlide() {
   } else {
     index = 0
   }
-  console.log("rotate() index=" + index)
-
-  // may not need slide A/B--was trying to cross fade
-  A = document.getElementById("slideA")
-  B = document.getElementById("slideB")
-/*
-  A.style['-webkit-animation'] = "imageAnimation 0s linear infinite 0s"
-  A.style['-moz-animation'] = "imageAnimation 0s linear infinite 0s"
-  B.style['-webkit-animation'] = "imageAnimation 0s linear infinite 0s"
-  B.style['-moz-animation'] = "imageAnimation 0s linear infinite 0s"
-*/
-  if (imageA) {
-    A.src = slideCache[index].src
-    A.style.visibility = "visible"
-    A.style.opacity = 1
-    B.style.visibility = "hidden"
-    B.style.opacity = 0
-    imageA = 0
-  } else {
-    B.src = slideCache[index].src
-    A.style.visibility = "hidden"
-    A.style.opacity = 0
-    B.style.visibility = "visible"
-    B.style.opacity = 1
-    imageA = 1
-  }
-  sleep = slides[index][1]
-  
-  setTimeout(rotateSlide, sleep * 1000)
-  console.log("wait " + sleep)
+  debug("rotate() index=" + index)
+  s = document.getElementById("slide")
+  s.src = slideCache[index].src
+  s.style.visibility = "visible"
+  s.style.opacity = 1
 }
 
-
-//if (document.all||document.getElementById) {
-//  window.onload=new Function('setInterval("rotateSlide()",3000)')
 </script>
 
-<link rel="stylesheet" href="css/variant.css">
+<link rel="stylesheet" href="css/styles.css">
 
 </head>
 
 <body>
 
 <div id="slideBase" class="slidebase">
-<img id="slideA" class="slide" src="slides/1.jpg">
-<img id="slideB" class="slide" src="slides/2.jpg">
+<img id="slide" class="slide" src="slides/01.jpg">
 </div>
 
 <div class="wrapper">
@@ -174,7 +171,7 @@ function rotateSlide() {
 	</div>
 </div>
 
-<div class="screensaverIcon" onclick="startScreenSaver()"></div>
+<div class="screensaverIcon" onclick="javascript:startScreenSaver()"></div>
 
 </body>
 </html>
