@@ -1,0 +1,180 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Educause - Kuali</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+
+<style>
+.slidebase {
+  z-index: 1;
+  background-attachment:fixed;
+  background-repeat: no-repeat;
+/*Use center center in place of 300 200 to center bg image*/
+  background-position: 300 200;
+  margin: 0;
+}
+.slide {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  -webkit-animation-timing-function: ease-in;
+}
+</style>
+
+<script language="JavaScript1.2">
+var idleTime = 0
+var inactivityStart = 20
+var screenSaverActive = false
+
+/* you must supply your own immages */
+var bgImages= new Array()
+var slides = [
+ [ "slides/1.jpg", 5],
+ [ "slides/2.jpg", 30 ],
+ [ "slides/3.jpg", 2 ],
+ [ "slides/4.jpg", 20 ],
+]
+var imageA = 0 // toggle which image is showing (crossfade?)
+
+//preload images
+var slideCache = new Array()
+
+for (i=0; i < slides.length; i++) {
+  slideCache[i] = new Image()
+  slideCache[i].src = slides[i][0]
+}
+
+// start a random slide
+var index = Math.floor((Math.random() * slides.length))
+console.log("index=" + index)
+setTimeout(rotateSlide, slides[index][1] * 1000)
+
+$(document).ready(function () {
+    //Increment the idle time counter every second.
+    setTimeout(timerIncrement, 1000)
+    console.log("idle?")
+
+    //Zero the idle timer on mouse movement.
+    $(this).mousemove(function (e) {
+        idleTime = 0
+        stopScreenSaver()
+    })
+    $(this).keypress(function (e) {
+        idleTime = 0
+        stopScreenSaver()
+    })
+})
+
+// hooked from setInterval above
+function timerIncrement() {
+    idleTime = idleTime + 1
+    if (idleTime > inactivityStart && !screenSaverActive) {
+        startScreenSaver()
+    }
+    setTimeout(timerIncrement, 1000)
+}
+
+// startup the screensaver
+function startScreenSaver() {
+  screenSaverActive = true
+  rotateSlide()
+  base = document.getElementById("slideBase")
+  base.style.visibility = "visible"
+   //    slide = document.getElementById("slideBase")
+    
+}
+
+// stop the screensaver
+function stopScreenSaver() {
+  screenSaverActive = false
+  base = document.getElementById("slideBase")
+  base.style.visibility = "hidden"
+  // hide slideBase
+  //if (screenSaverActive) {
+    //document.getElementById("screensaver").className = "slideshowWrapper"
+  //  screenSaverActive = false
+  //}
+}
+
+function showSlide(x) {
+}
+
+function rotateSlide() {
+  if (screenSaverActive == false) {
+    return
+  }
+
+  if (index < slides.length-1) {
+    index++
+  } else {
+    index = 0
+  }
+  console.log("rotate() index=" + index)
+
+  // may not need slide A/B--was trying to cross fade
+  A = document.getElementById("slideA")
+  B = document.getElementById("slideB")
+/*
+  A.style['-webkit-animation'] = "imageAnimation 0s linear infinite 0s"
+  A.style['-moz-animation'] = "imageAnimation 0s linear infinite 0s"
+  B.style['-webkit-animation'] = "imageAnimation 0s linear infinite 0s"
+  B.style['-moz-animation'] = "imageAnimation 0s linear infinite 0s"
+*/
+  if (imageA) {
+    A.src = slideCache[index].src
+    A.style.visibility = "visible"
+    A.style.opacity = 1
+    B.style.visibility = "hidden"
+    B.style.opacity = 0
+    imageA = 0
+  } else {
+    B.src = slideCache[index].src
+    A.style.visibility = "hidden"
+    A.style.opacity = 0
+    B.style.visibility = "visible"
+    B.style.opacity = 1
+    imageA = 1
+  }
+  sleep = slides[index][1]
+  
+  setTimeout(rotateSlide, sleep * 1000)
+  console.log("wait " + sleep)
+}
+
+
+//if (document.all||document.getElementById) {
+//  window.onload=new Function('setInterval("rotateSlide()",3000)')
+</script>
+
+<link rel="stylesheet" href="css/variant.css">
+
+</head>
+
+<body>
+
+<div id="slideBase" class="slidebase">
+<img id="slideA" class="slide" src="slides/1.jpg">
+<img id="slideB" class="slide" src="slides/2.jpg">
+</div>
+
+<div class="wrapper">
+	<a href="http://kuali.co/"><div class="logo"></div></a>
+	<div class="hr"></div>
+	<div class="button-container">
+		<a href="https://monsters.kuali.co/cm/"><span class="bold">Kuali</span>Student</a>
+		<a href="https://dragons-tst.kuali.co/fin/"><span class="bold">Kuali</span>Financials</a>
+		<a href="research.html"><span class="bold">Kuali</span>Research</a>
+		<a href="ready.html"><span class="bold">Kuali</span>Ready</a>
+		<a href="http://oletest.kuali.co/olefs/portal.do"><span class="bold">Kuali</span>OLE</span></a>
+	</div>
+</div>
+
+<div class="screensaverIcon" onclick="startScreenSaver()"></div>
+
+</body>
+</html>
