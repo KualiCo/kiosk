@@ -4,43 +4,33 @@
 <head>
 <meta charset="utf-8">
 <title>Educause - Kuali</title>
-  
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="js/script.js"></script>  
+<script src="js/main.js"></script>
 <link rel="stylesheet" href="css/styles.css">
-
+<link rel="stylesheet" href="css/slides.css">
 </head>
 
 <body>
 
-<div id="screensaver" class="slideshowWrapper">
-	<ul class="slideshow">
-	  <li> <span>Slide One</span> </li>
-	  <li> <span>Slide Two</span> </li>
-	  <li> <span>Slide Three</span> </li>
-	  <li> <span>Slide Four</span> </li>
-	  <li> <span>Slide Two</span> </li>
-	</ul>
-	<div class="whiteBackground"></div>
+<div id="slideBase" class="slidebase">
+<img id="slide" class="slide" src="slides/01.jpg">
 </div>
 
 <div class="wrapper">
-	<div class="logo"></div>
+	<a href="http://kuali.co/"><div class="logo"></div></a>
 	<div class="hr"></div>
 	<div class="button-container">
 		<a href="https://monsters.kuali.co/cm/"><span class="bold">Kuali</span>Student</a>
 		<a href="https://dragons-tst.kuali.co/fin/"><span class="bold">Kuali</span>Financials</a>
-		<div class="open-button">
-			<a class="link-header" href="index.html"><span class="bold">Kuali</span>Research</a>
-			<a href="https://res-demo1.kuali.co/"><span class="bold">Kuali</span>Research</a>
-			<a class="last-link" href="https://goblins-tst.kuali.co/coi/">Research - COI</a>
-		</div>
+        <a hrv class="open-button">
+            <a class="link-header" href="index.html"><span class="bold">Kuali</span>Research</a>
+            <a href="https://res-demo1.kuali.co/"><span class="bold">Kuali</span>Research</a>
+            <a class="last-link" href="https://goblins-tst.kuali.co/coi/">Research - COI</a>
 		<a href="ready.html"><span class="bold">Kuali</span>Ready</a>
-		<a href="https://oletest.kuali.co/olefs/portal.do"><span class="bold">Kuali</span>OLE</span></a>
+		<a href="http://dewberry.lib.uchicago.edu:8080/olefs/portal.do"><span class="bold">Kuali</span>OLE</span></a>
 	</div>
 </div>
 
-<div class="screensaverIcon" onclick="startScreenSaver()"></div>
-
+<div class="screensaverIcon" onclick="javascript:startScreenSaver()"></div>
 </body>
 </html>
