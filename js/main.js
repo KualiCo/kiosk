@@ -1,8 +1,8 @@
 
 // configurables
 var inactivityPeriod = 15
-var fadeInterval = 2000
-var slideRotation = 7
+var fadeInterval = 1500
+var slideRotation = 6
 var slides = [
   "slides/01.jpg" ,
   "slides/02.jpg" ,
