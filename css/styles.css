@@ -261,6 +261,7 @@ titleAnimation { 0% {
   }
   
 .screensaverIcon {
+    z-index: 1500;
 	bottom:0;
 	right:0;
 	width: 50px;

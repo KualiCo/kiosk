@@ -1,5 +1,7 @@
+
 // configurables
 var inactivityPeriod = 15
+var fadeInterval = 2000
 var slideRotation = 5
 var slides = [
   "slides/01.jpg" ,
@@ -46,8 +48,14 @@ debug("index=" + index)
 // stateful vars
 var idle = 0  // how idle is the system?
 var delay = 0 // used to slow down killing screensaver on mouse move
+var slideA = false
 $(document).ready(function () {
-  debug("init (" + slideRotation + ")")
+  debug("document.ready(" + slideRotation + ")")
+
+  // on start, run screen saver "stop" to prime everything properly
+  screenSaverActive = true
+  stopScreenSaver()
+
   i_idle = setInterval(idleInterval, 1000)
 
   //Zero the idle timer on mouse movement.
@@ -65,7 +73,7 @@ $(document).ready(function () {
 })
 
 function debug(s) {
-//  console.log(s)
+  console.log(s)
 }
 
 // hooked from setInterval above
@@ -77,22 +85,15 @@ function idleInterval() {
   }
 }
 
-function slideInterval() {
-  debug("slide++")
-  if (screenSaverActive) {
-    rotateSlide()
-  }
-}
-
 // startup the screensaver
 function startScreenSaver() {
   debug("startScreenSaver()")
+  clearInterval(i_slide)
   delay = 0 // slow down an accidental re-trigger
   screenSaverActive = true
-  base = document.getElementById("slideBase")
-  base.style.visibility = "visible"
+  $('#slideBg').css('display','block')
   rotateSlide()
-  i_slide = setInterval(slideInterval, slideRotation * 1000)
+  i_slide = setInterval(rotateSlide, slideRotation * 1000)
 }
 
 // stop the screensaver
@@ -100,10 +101,9 @@ function stopScreenSaver() {
   if (screenSaverActive) {
       debug("stopScreenSaver()")
 	  screenSaverActive = false
-	  base = document.getElementById("slideBase")
-	  base.style.visibility = "hidden"
-	  s = document.getElementById("slide")
-	  s.style.visibility = "hidden"
+      $('#slideA').fadeOut(0)
+      $('#slideB').fadeOut(0)
+      $('#slideBg').css('display','none')
       clearInterval(i_slide)
   }
 }
@@ -119,9 +119,21 @@ function rotateSlide() {
     index = 0
   }
   debug("rotate() index=" + index)
-  s = document.getElementById("slide")
-  s.src = slideCache[index].src
-  s.style.visibility = "visible"
-  s.style.opacity = 1
+
+  if (slideA) {
+    debug("Picking B")
+    slideA = false
+    s = document.getElementById("slideB")
+    s.src = slideCache[index].src
+    $('#slideA').fadeOut(fadeInterval)
+    $('#slideB').fadeIn(fadeInterval)
+  } else {
+    debug("Picking A")
+    slideA = true
+    s = document.getElementById("slideA")
+    s.src = slideCache[index].src
+    $('#slideA').fadeIn(fadeInterval)
+    $('#slideB').fadeOut(fadeInterval)
+  }
 }
 
