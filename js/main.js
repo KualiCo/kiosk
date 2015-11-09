@@ -39,7 +39,8 @@ var slides = [
   "slides/temp12.jpg" ,
   "slides/temp13.jpg" ,
   "slides/temp14.jpg" ,
-  "slides/temp15.jpg" 
+  "slides/temp15.jpg" ,
+  "slides/temp16.jpg" ,
 ]
 
 // not configurable
