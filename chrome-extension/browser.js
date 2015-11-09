@@ -6,7 +6,7 @@ onload = function() {
   doLayout();
 
   document.querySelector('#kuali-menu').onclick = function() {
-    navigateTo('https://educause.kuali.co/');
+    navigateTo('https://kiosk.kuali.co/');
   };
 
   document.querySelector('#terminate').onclick = function() {
