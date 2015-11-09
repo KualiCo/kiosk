@@ -25,6 +25,21 @@ var slides = [
   "slides/19.jpg" ,
   "slides/20.jpg" ,
   "slides/21.jpg" ,
+  "slides/temp01.jpg" ,
+  "slides/temp02.jpg" ,
+  "slides/temp03.jpg" ,
+  "slides/temp04.jpg" ,
+  "slides/temp05.jpg" ,
+  "slides/temp06.jpg" ,
+  "slides/temp07.jpg" ,
+  "slides/temp08.jpg" ,
+  "slides/temp09.jpg" ,
+  "slides/temp00.jpg" ,
+  "slides/temp11.jpg" ,
+  "slides/temp12.jpg" ,
+  "slides/temp13.jpg" ,
+  "slides/temp14.jpg" ,
+  "slides/temp15.jpg" 
 ]
 
 // not configurable
@@ -35,6 +50,27 @@ var screenSaverActive = false
 var slideCache = new Array()
 var i_idle = null
 var i_slide = null
+
+// Fisher-Yates Shuffle 
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex ;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+slides = shuffle(slides)
 
 for (i=0; i < slides.length; i++) {
   slideCache[i] = new Image()
