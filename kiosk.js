@@ -1,4 +1,5 @@
 
+/*
 // configurables
 var inactivityPeriod = 15
 var fadeInterval = 1500
@@ -174,3 +175,4 @@ function rotateSlide() {
   }
 }
 
+*/

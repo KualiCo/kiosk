@@ -3,29 +3,15 @@
   <head>
     <link rel="stylesheet" href="browser.css">
     <script src="browser.js"></script>
+	<script src="jquery.min.js"></script>
   <body>
     <div id="kuali-menu">
-      <img src="icon-1.png"></a>
+      <img src="icon-1.png">
     </div>
-    <div id="controls">
-      <button id="back" title="Go Back">&#9664;</button>
-      <button id="forward" title="Go Forward">&#9654;</button>
-      <button id="home" title="Go Home">&#8962;</button>
-      <button id="reload" title="Reload">&#10227;</button>
-      <button id="reset">Log Off</button>
-      <form id="location-form">
-        <div id="center-column">
-        </div>
-      </form>
-    </div>
+	<div id="slideBg" class="slidebase">
+	  <img id="slideA" class="slide" src="slides/01.jpg">
+	  <img id="slideB" class="slide" src="slides/02.jpg">
+	</div>
     <webview src="https://kiosk.kuali.co/" style="width:100%; height:100%"></webview>
-    <div id="sad-webview">
-      <div id="sad-webview-icon">&#9762;</div>
-      <h2 id="crashed-label">Aw, Snap!</h2>
-      <h2 id="killed-label">He's Dead, Jim!</h2>
-
-      <p>Something went wrong while displaying this webpage.
-      To continue, reload or go to another page.</p>
-    </div>
   </body>
 </html>
