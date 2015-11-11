@@ -17,6 +17,9 @@ body {
 }
 
 .wrapper {
+	text-align: center;
+	color: white;
+	font-family: "Lato";
 	width: 1000px;
 	margin: 30px auto;
 }

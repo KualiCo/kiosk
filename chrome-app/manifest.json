@@ -2,8 +2,7 @@
   "app": {
     "background": {
       "scripts": [
-        "main.js",
-	    "gapi.client.js"
+        "main.js"
       ]
     }
   },

@@ -2,45 +2,55 @@
 var inactivityPeriod = 15
 var fadeInterval = 1500
 var slideRotation = 6
-var slides = [
-	"slides/01.jpg" ,
-	"slides/02.jpg" ,
-	"slides/03.jpg" ,
-	"slides/04.jpg" ,
-	"slides/05.jpg" ,
-	"slides/06.jpg" ,
-	"slides/07.jpg" ,
-	"slides/08.jpg" ,
-	"slides/09.jpg" ,
-	"slides/10.jpg" ,
-	"slides/11.jpg" ,
-	"slides/12.jpg" ,
-	"slides/13.jpg" ,
-	"slides/14.jpg" ,
-	"slides/15.jpg" ,
-	"slides/16.jpg" ,
-	"slides/17.jpg" ,
-	"slides/18.jpg" ,
-	"slides/19.jpg" ,
-	"slides/20.jpg" ,
-	"slides/21.jpg" ,
-	"slides/temp01.jpg" ,
-	"slides/temp02.jpg" ,
-	"slides/temp03.jpg" ,
-	"slides/temp04.jpg" ,
-	"slides/temp05.jpg" ,
-	"slides/temp06.jpg" ,
-	"slides/temp07.jpg" ,
-	"slides/temp08.jpg" ,
-	"slides/temp09.jpg" ,
-	"slides/temp10.jpg" ,
-	"slides/temp11.jpg" ,
-	"slides/temp12.jpg" ,
-	"slides/temp13.jpg" ,
-	"slides/temp14.jpg" ,
-	"slides/temp15.jpg" ,
-	"slides/temp16.jpg" ,
-]
+
+var slides =[
+"slides/01.jpg",
+"slides/02.jpg",
+"slides/03.jpg",
+"slides/04.jpg",
+"slides/05.jpg",
+"slides/06.jpg",
+"slides/07.jpg",
+"slides/08.jpg",
+"slides/09.jpg",
+"slides/10.jpg",
+"slides/11.jpg",
+"slides/12.jpg",
+"slides/13.jpg",
+"slides/14.jpg",
+"slides/15.jpg",
+"slides/16.jpg",
+"slides/17.jpg",
+"slides/18.jpg",
+"slides/19.jpg",
+"slides/20.jpg",
+"slides/21.jpg",
+"slides/kd2015-01.jpg",
+"slides/kd2015-02.jpg",
+"slides/kd2015-03.jpg",
+"slides/kd2015-04.jpg",
+"slides/kd2015-05.jpg",
+"slides/kd2015-06.jpg",
+"slides/kd2015-07.jpg",
+"slides/kd2015-08.jpg",
+"slides/kd2015-09.jpg",
+"slides/kd2015-10.jpg",
+"slides/kd2015-11.jpg",
+"slides/kd2015-12.jpg",
+"slides/kd2015-13.jpg",
+"slides/kd2015-14.jpg",
+"slides/kd2015-15.jpg",
+"slides/kd2015-16.jpg",
+"slides/kd2015-17.jpg",
+"slides/kd2015-18.jpg",
+"slides/kd2015-19.jpg",
+"slides/kd2015-20.jpg",
+"slides/kd2015-21.jpg",
+"slides/kd2015-22.jpg",
+"slides/kd2015-23.jpg",
+"slides/kd2015-24.jpg",
+"slides/kd2015-25.jpg"]
+
 
 // Goole API bits
 /*
@@ -234,7 +244,7 @@ function debug(s) {
 // hooked from setInterval above
 function idleInterval() {
 	idle++
-	debug("idle " + idle)
+	debug("idle")
 	if (idle > inactivityPeriod && !screenSaverActive) {
 		startScreenSaver()
 	}
@@ -276,14 +286,12 @@ function rotateSlide() {
 	debug("rotate() slideIndex=" + slideIndex)
 
 	if (slideA) {
-		debug("Picking B")
 		slideA = false
 		s = document.getElementById("slideB")
 		s.src = slideCache[slideIndex].src
 		$('#slideA').fadeOut(fadeInterval)
 		$('#slideB').fadeIn(fadeInterval)
 	} else {
-		debug("Picking A")
 		slideA = true
 		s = document.getElementById("slideA")
 		s.src = slideCache[slideIndex].src
