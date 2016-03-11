@@ -16,6 +16,9 @@ body {
 	height: 100%;
 }
 
+a {
+   color: #cfc;
+}
 .wrapper {
 	text-align: center;
 	color: white;
