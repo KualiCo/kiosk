@@ -65,6 +65,10 @@ a {
 	transition: background-color .1s
 }
 
+.nohover :hover {
+	background-color: unset;
+}
+
 .button-container :hover {
 	background-color: #ffffff;
 }
