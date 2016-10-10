@@ -2,31 +2,39 @@
 var inactivityPeriod = 15 // how long until we start screensaver? seconds
 var goHomeAfter = 30 // how long before we move the page back home? seconds
 var fadeInterval = 1500 // milliseconds cross fade
+//var slideRotation = 2 // how long to show each slide
 var slideRotation = 6 // how long to show each slide
 var kioskPage = 'https://kiosk.kuali.co/demo.html'
 
 var slides = [
-"slides/01.jpg",
-"slides/02.jpg",
-"slides/03.jpg",
-"slides/04.jpg",
-"slides/05.jpg",
-"slides/06.jpg",
-"slides/07.jpg",
-"slides/08.jpg",
-"slides/09.jpg",
-"slides/10.jpg",
-"slides/11.jpg",
-"slides/12.jpg",
-"slides/13.jpg",
-"slides/14.jpg",
-"slides/15.jpg",
-"slides/16.jpg",
-"slides/17.jpg",
-"slides/18.jpg",
-"slides/19.jpg",
-"slides/20.jpg",
-"slides/21.jpg"
+"01.jpg",
+"02.jpg",
+"03.jpg",
+"04.jpg",
+"05.jpg",
+"06.jpg",
+"08.jpg",
+"09.jpg",
+"12.jpg",
+"13.jpg",
+"14.jpg",
+"15.jpg",
+"16.jpg",
+"17.jpg",
+"20.jpg",
+"Kuali Sales Presentation Master - Template (3).jpg",
+"Kuali Sales Presentation Master - Template (4).jpg",
+"Kuali Student Presentation Master - Template (2).jpg",
+"Kuali Student Presentation Master - Template (3).jpg",
+"Kuali Student Presentation Master - Template (4).jpg",
+"stu-cust-byu.jpg",
+"stu-cust-coventry.jpg",
+"stu-cust-hawaii.jpg",
+"stu-cust-northwest.jpg",
+"stu-cust-snhu.jpg",
+"stu-cust-stellenbosch.jpg",
+"stu-cust-toronto.jpg",
+"stu-cust-uw.jpg",
 ]
 
 // not configurable
@@ -77,94 +85,6 @@ onload = function() {
 	})
 }
 
-// Goole API bits
-/*
-var gApiClientId = 'AIzaSyBJWJqvAnZ48q1uBp4ztoFNuI329IpGYQM'
-var google_gApiScopes = ['https://www.googleapis.com/auth/drive.metadata.readonly']
-
-// GAPI for Google Drive
-// Check if current user has authorized this application.
-function checkAuth() {
-	gapi.auth.authorize({
-		'client_id': gApiClientId,
-		'scope': gApiScopes.join(' '),
-		'immediate': true
-	}, handleAuthResult)
-}
-
-// GAPI for Google Drive
-// Handle response from authorization server.
-//
-// @param {Object} authResult Authorization result.
-//
-function handleAuthResult(authResult) {
-	var authorizeDiv = document.getElementById('authorize-div')
-	if (authResult && !authResult.error) {
-		// Hide auth UI, then load client library.
-		authorizeDiv.style.display = 'none'
-		// loadDriveApi()
-	} else {
-		// Show auth UI, allowing the user to initiate authorization by
-		// clicking authorize button.
-		authorizeDiv.style.display = 'inline'
-	}
-}
-	
-// GAPI for Google Drive
-// Initiate auth flow in response to user clicking authorize button.
-//
-// @param {Event} event Button click event.
-//
-function handleAuthClick(event) {
-	gapi.auth.authorize({
-		client_id: gApiClientId,
-		scope: gApiScopes,
-		immediate: false
-	}, handleAuthResult)
-	return false
-}
-
-//
-// Load Drive API client library.
-//
-function loadDriveApi() {
-	gapi.client.load('drive', 'v2', listFiles)
-}
-
-//
-// Print files.
-//
-function listFiles() {
-	var request = gapi.client.drive.files.list({
-		'maxResults': 10
-	})
-
-	request.execute(function(resp) {
-	appendPre('Files:')
-	var files = resp.items
-	if (files && files.length > 0) {
-		for (var i = 0; i < files.length; i++) {
-			var file = files[i]
-			appendPre(file.title + ' (' + file.id + ')')
-			}
-		} else {
-			appendPre('No files found.')
-		}
-	})
-}
-
-// Append a pre element to the body containing the given message
-// as its text node.
-//
-// @param {string} message Text to be placed in pre element.
-function appendPre(message) {
-	var pre = document.getElementById('output')
-	var textContent = document.createTextNode(message + '\n')
-	pre.appendChild(textContent)
-}
-
-*/
-
 // Randomize the slide order
 function prepSlides() {
 	//loadDriveApi()
@@ -173,7 +93,7 @@ function prepSlides() {
 	slides = shuffle(slides)
 	for (i=0; i < slides.length; i++) {
 		slideCache[i] = new Image()
-		slideCache[i].src = slides[i]
+		slideCache[i].src = 'slides/' + slides[i]
 	}
 }
 

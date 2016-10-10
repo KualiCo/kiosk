@@ -30,7 +30,9 @@ body {
 .slide {
     z-index: 10000;
     position: fixed;
+    background: #fff;
     height: 100%;
+    width: 100%;
     background-position: center;
     background-size: cover;
     top: 0;
