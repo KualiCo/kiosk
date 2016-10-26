@@ -1,5 +1,5 @@
 // configurables
-var inactivityPeriod = 15 // how long until we start screensaver? seconds
+var inactivityPeriod = 90 // how long until we start screensaver? seconds
 var goHomeAfter = 30 // how long before we move the page back home? seconds
 var fadeInterval = 1500 // milliseconds cross fade
 var slideRotation = 6 // how long to show each slide
