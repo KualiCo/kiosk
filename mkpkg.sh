@@ -7,6 +7,4 @@ echo ""
 echo "Go to:"
 echo ""
 echo https://chrome.google.com/webstore/developer/dashboard
-echo "edit -> Upload->updat.e.."
-
-
+echo "edit -> Upload->update..."

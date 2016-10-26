@@ -2,40 +2,15 @@
 var inactivityPeriod = 15 // how long until we start screensaver? seconds
 var goHomeAfter = 30 // how long before we move the page back home? seconds
 var fadeInterval = 1500 // milliseconds cross fade
-//var slideRotation = 2 // how long to show each slide
 var slideRotation = 6 // how long to show each slide
 var kioskPage = 'https://kiosk.kuali.co/demo.html'
 
-var slides = [
-"01.jpg",
-"02.jpg",
-"03.jpg",
-"04.jpg",
-"05.jpg",
-"06.jpg",
-"08.jpg",
-"09.jpg",
-"12.jpg",
-"13.jpg",
-"14.jpg",
-"15.jpg",
-"16.jpg",
-"17.jpg",
-"20.jpg",
-"Kuali Sales Presentation Master - Template (3).jpg",
-"Kuali Sales Presentation Master - Template (4).jpg",
-"Kuali Student Presentation Master - Template (2).jpg",
-"Kuali Student Presentation Master - Template (3).jpg",
-"Kuali Student Presentation Master - Template (4).jpg",
-"stu-cust-byu.jpg",
-"stu-cust-coventry.jpg",
-"stu-cust-hawaii.jpg",
-"stu-cust-northwest.jpg",
-"stu-cust-snhu.jpg",
-"stu-cust-stellenbosch.jpg",
-"stu-cust-toronto.jpg",
-"stu-cust-uw.jpg",
-]
+// load slide filenames into array
+var slides = []
+for (i = 1; i <= 41; i++) {
+  var newSlide = (i < 10 ? "0" : "") + i + ".jpg"
+  slides.push(newSlide)
+}
 
 // not configurable
 var bgImages= new Array()
@@ -113,9 +88,9 @@ function doLayout() {
 	webview.style.height = webviewHeight + 'px'
 }
 
-// Fisher-Yates Shuffle 
+// Fisher-Yates Shuffle
 function shuffle(array) {
-	var currentIndex = array.length, temporaryValue, randomIndex 
+	var currentIndex = array.length, temporaryValue, randomIndex
 
 	// While there remain elements to shuffle...
 	while (0 !== currentIndex) {

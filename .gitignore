@@ -17,3 +17,4 @@ __pycache__/
 *.log
 
 .DS_store
+chrome-app.zip
