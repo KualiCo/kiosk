@@ -7,7 +7,7 @@ var kioskPage = 'https://kiosk.kuali.co/demo.html'
 
 // load slide filenames into array
 var slides = []
-for (i = 1; i <= 39; i++) {
+for (i = 1; i <= 23; i++) {
   var newSlide = (i < 10 ? "0" : "") + i + ".jpg"
   slides.push(newSlide)
 }
