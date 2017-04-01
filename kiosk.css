@@ -1,10 +1,10 @@
-@import url(https://fonts.googleapis.com/css?family=Lato:400,300,700,900);
+@import url('https://fonts.googleapis.com/css?family=Roboto');
 
 html { min-height: 100%; }
 
 body {
 	margin:0;
-	background-image: url("img/blue-background.png");
+	background-color: #ffffff;
 	background-position: center center;
 	background-attachment: fixed;
 	-webkit-background-size: cover;
@@ -21,14 +21,14 @@ a {
 }
 .wrapper {
 	text-align: center;
-	color: white;
-	font-family: "Lato";
+	color: #7A8A8F;
+	font-family: 'Roboto', sans-serif;
 	width: 1000px;
 	margin: 30px auto;
 }
 
 .logo {
-	background-image: url("img/kuali-logo.png");
+	background-image: url("img/kualiLogo.png");
 	background-size: 330px;
 	width: 330px;
 	height: 110px;
@@ -50,13 +50,13 @@ a {
 .button-container-a {
 	display: block;
 	width: 100%;
-	height: 50px;
+	height: 40px;
 	background-color: #eeeeee;
 	text-align: center;
 	color: #416073;
-	font-family: "Lato";
+	font-family: 'Roboto bold', sans-serif;
 	text-decoration: none;
-	font-size: 40px;
+	font-size: 32px;
 	padding: 20px;
 	margin-bottom: 25px;
 	border-radius: 4px;
@@ -70,14 +70,15 @@ a {
 }
 
 .button-container :hover {
-	background-color: #ffffff;
+	background-color: #E3E7EA;
 }
 .button-container :active {
 	background-color: #dfdfdf;
 }
 
 .button-container-a a {
-	color: #416073;
+	color: #3D515C;
+	font-family: 'Roboto bold', sans-serif;
 	text-decoration: none;
 }
 
@@ -93,7 +94,7 @@ a {
 	background-color: #eeeeee;
 	text-align: center;
 	color: #416073;
-	font-family: "Lato";
+	font-family: 'Roboto', sans-serif;
 	text-decoration: none;
 	font-size: 25px;
 	box-shadow: none;
@@ -111,7 +112,7 @@ a {
 	background-color: #eeeeee;
 	text-align: center;
 	color: #416073;
-	font-family: "Lato";
+	font-family: 'Roboto', sans-serif;
 	text-decoration: none;
 	font-size: 40px !important;
 	padding: 20px 20px 20px 20px !important;
