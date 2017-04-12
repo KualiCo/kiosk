@@ -1,16 +1,24 @@
+//DONETODO Persist configuration across restarts - have a configuration screen!
+//DONETODO Allow configuration of the folder
+//TODO Allow other media types. Would require inspecting the file.
+//TODO Verify offline capability
+//WONTTODO Populate default slides on load
+//WONTTODO Progress indicator
+//DONETODO Sync status
+//DONETODO Drive directory should be configurable - can use optionsPage ?
+//DONETODO The default slides should be served from the app itself instead of pre-populating
+//TODO Consider showing a network status icon when not running
+//TODO Consider if we should update slides when there is a file change
+//TODO cleanup formatting - tabs/spaces/etc
+//TODO formatting of options screen
+//TODO allow other options to be configurable
+
 // configurables
 var inactivityPeriod = 90 // how long until we start screensaver? seconds
 var goHomeAfter = 30 // how long before we move the page back home? seconds
 var fadeInterval = 1500 // milliseconds cross fade
 var slideRotation = 6 // how long to show each slide
 var kioskPage = 'https://kiosk.kuali.co/demo.html'
-
-// load slide filenames into array
-var slides = []
-for (i = 1; i <= 23; i++) {
-  var newSlide = (i < 10 ? "0" : "") + i + ".jpg"
-  slides.push(newSlide)
-}
 
 // not configurable
 var bgImages= new Array()
@@ -29,8 +37,6 @@ var slideCache = new Array()
 var i_idle = null
 var i_slide = null
 var i_goHome = null
-
-prepSlides()
 
 onload = function() {
 	var webview = document.querySelector('webview')
@@ -58,18 +64,119 @@ onload = function() {
 		idle = 0
 		stopScreenSaver()
 	})
+    
+    //DEBUG - starts screenshot immediately
+    webview.onkeyup = function(evt) {
+        if (!screenSaverActive) {
+            if (evt.key === "S" && evt.shiftKey && evt.ctrlKey ) {
+                startScreenSaver()
+            }
+        }
+        
+        if (evt.key === "O" && evt.shiftKey && evt.ctrlKey ) {
+            chrome.app.window.create("options.html");
+        }
+    }
+    
+    //Configure notifications for service changes
+    chrome.syncFileSystem.onServiceStatusChanged.addListener(function (detail) {
+        if (detail.state === 'temporary_unavailable') {
+            toast('service_status', 'Warning', 'Network connection lost', 3000);
+        } else if (detail.state === 'running') {
+            toast('service_status', 'Info', 'Network connected', 3000);
+        } else if (detail.state === 'initializing') {
+            toast('service_status', 'Info', 'Connecting to Drive', 1000);
+        } else if (detail.state === 'authentication_required') {
+            toast('service_status', 'Error', 'Authentication required', 0, true);
+        } else if (detail.state === 'authentication_required') {
+            toast('service_status', 'Error', 'Drive sync disabled', 0, true);
+        }
+        debug(detail.description);
+    });
+
+    //Configure notifications file updates
+    chrome.syncFileSystem.onFileStatusChanged.addListener(function (detail) {
+        toast('file_status', 'Sync Update', detail.fileEntry.name + " " + detail.action + " [" + detail.direction, 1500) + "]";
+        debug(detail);
+    });
+    
+    loadSlides();
+}
+
+function loadSlides() {
+    chrome.syncFileSystem.requestFileSystem(function (fs) {
+        // FileSystem API should just work on the returned 'fs'.
+        if (fs) {
+            chrome.storage.sync.get({
+                drive_folder: 'kuali_kiosk_screenshots'
+            }, function(items) {
+               fs.root.getDirectory(items.drive_folder, {create: false}, 
+                   function(directory) {
+                       readDirectory(directory, prepSlides);
+                    },
+                    function (err) { 
+                        warn('Unable to read drive folder - default slides will be used', err);
+                        defaultSlides();
+                    });
+            });
+        } else {
+            defaultSlides();
+            if (chrome.runtime.lastError) {
+                error(chrome.runtime.lastError.message, chrome.runtime.lastError);
+            } else {
+                warn('Unable to load drive filesystem - default slides will be used', err);
+                error(msg, msg);
+            }
+        }
+    });
+}
+
+function defaultSlides() {
+    debug('Unable to load slides from google drive - using defaults');
+
+    // load slide filenames into array
+    var slides = [];
+    for (i = 1; i <= 23; i++) {
+      var newSlide = (i < 10 ? "0" : "") + i + ".jpg"
+      slides.push(newSlide)
+    }
+    
+    prepSlides(null, slides);
+}
+
+function readDirectory(directory, callback) {
+    var dirReader = directory.createReader();
+    var entries = [];
+
+    // Call the reader.readEntries() until no more results are returned.
+    var readEntries = function() {
+       dirReader.readEntries (function(results) {
+        if (!results.length) {
+            callback(null, entries);
+        } else {
+          entries = entries.concat(Array.prototype.slice.call(results || [], 0));
+          readEntries();
+        }
+      }, function (err) { callback(err) });
+    };
+
+    readEntries(); // Start reading dirs.
 }
 
 // Randomize the slide order
-function prepSlides() {
+function prepSlides(err, slideFiles) {
 	//loadDriveApi()
 	// pull new list from google drive
 	// shuffle
-	slides = shuffle(slides)
-	for (i=0; i < slides.length; i++) {
-		slideCache[i] = new Image()
-		slideCache[i].src = 'slides/' + slides[i]
-	}
+    if (!err) {
+    	var slides = shuffle(slideFiles)
+    	for (i=0; i < slides.length; i++) {
+    		slideCache[i] = new Image()
+    		slideCache[i].src = typeof slides[i] === 'string' ? 'slides/' + slides[i] : slides[i].toURL();
+    	}
+    } else {
+        error('Error loading slides', err);
+    }
 }
 
 function navigateTo(url) {
@@ -109,6 +216,33 @@ function shuffle(array) {
 
 function debug(s) {
 	console.log(s)
+}
+
+function error(msg, e) {
+    console.log(e);
+    if (msg) toast('general_error', 'Error', msg, 0, true);
+}
+
+function warn(msg, e) {
+    console.log(e);
+    if (msg) toast('general_warning', 'Warning', msg, 3000);
+}
+
+function toast(notifId, title, message, timeout, requireInteraction) {
+    chrome.notifications.create(notifId, {
+        type: 'basic',
+        title: title,
+        message: message,
+        iconUrl: '128.png',
+        isClickable: false,
+        requireInteraction: requireInteraction || false
+    }, function(notificationId) {
+        if (requireInteraction === false) {
+            setTimeout(function(){
+                chrome.notifications.clear(notificationId);
+           }, timeout);
+       }
+    });
 }
 
 // hooked from setInterval above
@@ -151,12 +285,11 @@ function rotateSlide() {
 		return
 	}
 
-	if (slideIndex < slides.length-1) {
+	if (slideIndex < slideCache.length-1) {
 		slideIndex++
 	} else {
 		slideIndex = 0
 	}
-	//debug("rotate() slideIndex=" + slideIndex)
 
 	if (slideA) {
 		slideA = false

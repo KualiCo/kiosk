@@ -35,10 +35,27 @@ function runApp() {
     }
     ,function(w){
        win = w;
-       win.fullscreen();
-       setTimeout(function(){
-         win.fullscreen();
-      },1000);
+       //Get fullscreen preference and switch to fullscreen if true
+       chrome.storage.sync.get({
+         fullscreen: true
+       }, function(items) {
+           if (items.fullscreen === true) {
+               win.fullscreen();
+               setTimeout(function(){
+                 win.fullscreen();
+              },1000);
+          }
+       });
+
+      chrome.runtime.onInstalled.addListener(function() {
+        chrome.contextMenus.create({ id: "options", title: "Options", contexts: ["launcher"] })
+      })
+
+      chrome.contextMenus.onClicked.addListener(function(info) {
+        if(info.menuItemId == "options") {
+          chrome.app.window.create("options.html")
+        }
+      });
     }
   )
 }
