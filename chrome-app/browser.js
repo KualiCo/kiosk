@@ -11,6 +11,7 @@
 //TODO Consider if we should update slides when there is a file change
 //TODO cleanup formatting - tabs/spaces/etc
 //TODO formatting of options screen
+//TODO Load default options
 //TODO allow other options to be configurable
 
 // configurables
@@ -100,39 +101,82 @@ onload = function() {
         debug(detail);
     });
     
-    loadSlides();
-}
-
-function loadSlides() {
-    chrome.syncFileSystem.requestFileSystem(function (fs) {
-        // FileSystem API should just work on the returned 'fs'.
-        if (fs) {
-            chrome.storage.sync.get({
-                drive_folder: 'kuali_kiosk_screenshots'
-            }, function(items) {
-               fs.root.getDirectory(items.drive_folder, {create: false}, 
-                   function(directory) {
-                       readDirectory(directory, prepSlides);
-                    },
-                    function (err) { 
-                        warn('Unable to read drive folder - default slides will be used', err);
-                        defaultSlides();
-                    });
-            });
-        } else {
-            defaultSlides();
+    //loadSlides();
+    
+    requestFilesystem(function(err, fs) {
+        if (err) {            
+            warn('Unable to read drive filesystem. Default slides will be used.', err);
             if (chrome.runtime.lastError) {
-                error(chrome.runtime.lastError.message, chrome.runtime.lastError);
-            } else {
-                warn('Unable to load drive filesystem - default slides will be used', err);
-                error(msg, msg);
+                warn(chrome.runtime.lastError.message, chrome.runtime.lastError);
             }
+            
+            defaultSlides();
+        } else {
+            initSyncableFilesystem(fs, function(err, rootDirectory) {
+                if (err) {
+                    warn('Unable to init syncable filesystem. Default slides will be used.', err);
+                    if (chrome.runtime.lastError) {
+                        warn(chrome.runtime.lastError.message, chrome.runtime.lastError);
+                    }
+                    
+                    defaultSlides();
+                } else {
+                    //Get slides from specificed folder
+                    loadSlideFolder(fs, function (err, directory) {
+                        if (err) {
+                            warn('Unable to read slide folder. Default slides will be used.', err)
+                            if (chrome.runtime.lastError) {
+                                warn(chrome.runtime.lastError.message, chrome.runtime.lastError);
+                            }
+
+                            defaultSlides();
+                        } else {
+                            readSlidesFromFolder(directory, prepSlides);
+                        }
+                    });
+                }
+            })
         }
     });
 }
 
+function requestFilesystem(callback) {
+    chrome.syncFileSystem.requestFileSystem(function (fs) {
+        if (fs) {
+            callback(null, fs);
+        } else {
+            callback('Unexpected error retrieving Chrome Syncable Filesystem.');
+        }
+    });
+}
+
+function initSyncableFilesystem(fs, callback) {
+    fs.root.getFile('kiosk_filesystem_initialized.txt', {create: true}, 
+        function(directory) {
+            callback(null, directory);
+         },
+         function (err) { 
+             callback(err);
+         });
+}
+
+function loadSlideFolder(fs, callback) {
+    chrome.storage.sync.get({
+        drive_folder: 'kuali_kiosk_screenshots'
+    }, function(items) {
+       fs.root.getDirectory(items.drive_folder, {create: false}, 
+           function(directory) {
+               readSlidesFromFolder(directory, prepSlides);
+               callback(null, directory);
+            },
+            function (err) { 
+                callback(err);
+            });
+    });
+}
+
 function defaultSlides() {
-    debug('Unable to load slides from google drive - using defaults');
+    debug('Using default slides');
 
     // load slide filenames into array
     var slides = [];
@@ -144,7 +188,7 @@ function defaultSlides() {
     prepSlides(null, slides);
 }
 
-function readDirectory(directory, callback) {
+function readSlidesFromFolder(directory, callback) {
     var dirReader = directory.createReader();
     var entries = [];
 
@@ -220,12 +264,24 @@ function debug(s) {
 
 function error(msg, e) {
     console.log(e);
-    if (msg) toast('general_error', 'Error', msg, 0, true);
+    if (e && e.name) {
+        console.log(name);
+    }
+    if (msg) {
+        console.log(msg);
+        toast('general_error', 'Error', msg, 0, true);
+    }
 }
 
 function warn(msg, e) {
     console.log(e);
-    if (msg) toast('general_warning', 'Warning', msg, 3000);
+    if (e && e.name) {
+        console.log(name);
+    }
+    if (msg) {
+        console.log(msg);
+        toast('general_warning', 'Warning', msg, 3000);
+    }
 }
 
 function toast(notifId, title, message, timeout, requireInteraction) {
