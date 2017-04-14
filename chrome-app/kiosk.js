@@ -1,6 +1,3 @@
-//TODO Verify offline in chrome os
-//TODO Verify context menu works
-
 /*global chrome, jQuery, console*/
 window.Kiosk = (function (Kiosk, chrome, $, logger) {
     'use strict'
