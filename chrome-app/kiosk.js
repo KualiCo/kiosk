@@ -78,12 +78,12 @@ window.Kiosk = (function (Kiosk, chrome, $, logger) {
             { create: false },
             (entry) => {
                 readEntriesFromFolder(entry,
+                    (e) => e.isDirectory,
                     (err, entries) => {
                         if (err) {
                             callback(err)
                         } else {
-                            callback(null, entries.filter(
-                                (d) => d.isDirectory).map(
+                            callback(null, entries.map(
                                 (d) => d.name)
                             )
                         }
@@ -120,7 +120,7 @@ window.Kiosk = (function (Kiosk, chrome, $, logger) {
         prepSlides(null, slides)
     }
 
-    function readEntriesFromFolder(directoryEntry, callback) {
+    function readEntriesFromFolder(directoryEntry, filter, callback) {
         let dirReader = directoryEntry.createReader(),
             entries = [],
             readEntries = () => {
@@ -128,9 +128,14 @@ window.Kiosk = (function (Kiosk, chrome, $, logger) {
                 if (!results.length) {
                     callback(null, entries)
                 } else {
-                  entries = entries.concat(
-                    Array.prototype.slice.call(results || [], 0))
-                  readEntries()
+                    entries = entries.concat(
+                        Array.prototype.slice.call(results || [], 0))
+
+                    if (filter) {
+                        entries = entries.filter(filter)
+                    }
+
+                    readEntries()
                 }
               }, (err) => callback(err) )
             }
@@ -445,7 +450,7 @@ window.Kiosk = (function (Kiosk, chrome, $, logger) {
                                             defaultSlides()
                                         } else {
                                             readEntriesFromFolder(
-                                                folderEntry, prepSlides)
+                                                folderEntry, (entry) => entry.isFile, prepSlides)
                                         }
                                     })
                                 }
