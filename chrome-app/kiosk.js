@@ -1,6 +1,5 @@
 //TODO Verify offline in chrome os
-//TODO cleanup code formatting
-//TODO cleanup options UI
+//TODO Verify context menu works
 
 /*global chrome, jQuery, console*/
 window.Kiosk = (function (Kiosk, chrome, $, logger) {
@@ -288,6 +287,8 @@ window.Kiosk = (function (Kiosk, chrome, $, logger) {
               (request) => {
                 if (request.optionsEvent == 'save') {
                     Kiosk.options.load(onOptionsLoaded)
+                } else if (request.optionsEvent == 'showOptionsModal') {
+                    $('#optionsModal').modal('show')
                 }
             })
 
@@ -321,16 +322,19 @@ window.Kiosk = (function (Kiosk, chrome, $, logger) {
                 stopScreenSaver()
             })
 
+            //Init options modal
+            $('#optionsModal').modal({ show: false })
+
             //DEBUG - starts screenshot immediately
             window.onkeyup = function(evt) {
                 if (!screenSaverActive) {
-                    if (evt.key === 'S' && evt.shiftKey && evt.ctrlKey ) {
+                    if (evt.key === 'S' && evt.shiftKey && evt.ctrlKey) {
                         startScreenSaver()
                     }
                 }
 
-                if (evt.key === 'O' && evt.shiftKey && evt.ctrlKey ) {
-                    chrome.app.window.create('options.html')
+                if (evt.key === 'O' && evt.shiftKey && evt.ctrlKey) {
+                    $('#optionsModal').modal('show')
                 }
             }
 

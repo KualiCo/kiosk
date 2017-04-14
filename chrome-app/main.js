@@ -53,7 +53,7 @@ function runApp() {
 
       chrome.contextMenus.onClicked.addListener((info) => {
         if (info.menuItemId === 'options') {
-          chrome.app.window.create('options.html')
+          chrome.runtime.sendMessage({ optionsEvent: 'showOptionsModal' })
         }
       })
     }
