@@ -68,7 +68,28 @@ window.Kiosk = (function (Kiosk, chrome, $, logger) {
         fs.root.getFile(
             FS_INIT_PLACEHOLDER,
             { create: true },
-            (directory) => callback(null, directory),
+            (entry) => callback(null, entry),
+            (err) => callback(err)
+        )
+    }
+
+    function getFolders(fs, root, callback) {
+        fs.root.getDirectory(root,
+            { create: false },
+            (entry) => {
+                readEntriesFromFolder(entry,
+                    (err, entries) => {
+                        if (err) {
+                            callback(err)
+                        } else {
+                            callback(null, entries.filter(
+                                (d) => d.isDirectory).map(
+                                (d) => d.name)
+                            )
+                        }
+                    }
+                )
+            },
             (err) => callback(err)
         )
     }
@@ -77,12 +98,10 @@ window.Kiosk = (function (Kiosk, chrome, $, logger) {
         chrome.storage.sync.get(
             { driveFolder: Kiosk.options.defaults.driveFolder },
             (items) => {
-                fs.root.getDirectory(items.driveFolder, { create: false },
-                    (directory) => {
-                        readSlidesFromFolder(directory, prepSlides)
-                        callback(null, directory)
-                    },
-                (err) => callback(err))
+                let driveFolder = items.driveFolder
+                fs.root.getDirectory(driveFolder, { create: false },
+                    (entry) => callback(null, entry, driveFolder),
+                (err) => callback(err, null, driveFolder))
             }
         )
     }
@@ -101,8 +120,8 @@ window.Kiosk = (function (Kiosk, chrome, $, logger) {
         prepSlides(null, slides)
     }
 
-    function readSlidesFromFolder(directory, callback) {
-        let dirReader = directory.createReader(),
+    function readEntriesFromFolder(directoryEntry, callback) {
+        let dirReader = directoryEntry.createReader(),
             entries = [],
             readEntries = () => {
                dirReader.readEntries((results) => {
@@ -395,12 +414,11 @@ window.Kiosk = (function (Kiosk, chrome, $, logger) {
 
                             defaultSlides()
                         } else {
-                            //Get slides from specificed folder
-                            loadSlideFolder(fs, (err2, directory) => {
+                            getFolders(fs, '/', (err2, folders) => {
                                 if (err2) {
                                     warn(
-                                        `Unable to read slide folder. ${defaultSlidesMsg}`,
-                                        err)
+                                        `Unable to load available folders. ${defaultSlidesMsg}`,
+                                        err2)
                                     if (chrome.runtime.lastError) {
                                         warn(chrome.runtime.lastError.message,
                                              chrome.runtime.lastError)
@@ -408,8 +426,30 @@ window.Kiosk = (function (Kiosk, chrome, $, logger) {
 
                                     defaultSlides()
                                 } else {
-                                    readSlidesFromFolder(directory, prepSlides)
+                                    chrome.runtime.sendMessage(
+                                        { initEvent: 'foldersLoaded',
+                                          availableFolders: folders }
+                                    )
+
+                                    //Get slides from specified folder
+                                    loadSlideFolder(fs, (err3, folderEntry, requestedFolder) => {
+                                        if (err3) {
+                                            warn(
+                                                `Unable to read slide folder: ${requestedFolder}. ${defaultSlidesMsg}`,
+                                                err3)
+                                            if (chrome.runtime.lastError) {
+                                                warn(chrome.runtime.lastError.message,
+                                                     chrome.runtime.lastError)
+                                            }
+
+                                            defaultSlides()
+                                        } else {
+                                            readEntriesFromFolder(
+                                                folderEntry, prepSlides)
+                                        }
+                                    })
                                 }
+
                             })
                         }
                     })

@@ -1,4 +1,4 @@
-/*globals chrome, Kiosk */
+/*globals chrome, Kiosk, $ */
 
 function saveOptions() {
     let options = {
@@ -45,5 +45,21 @@ document.addEventListener('DOMContentLoaded', restoreOptions)
 document.getElementById('save').addEventListener('click', saveOptions)
 document.getElementById('reset').addEventListener('click', resetOptions)
 document.getElementById('restart').addEventListener('click', restart)
+
+$('#availableFolders').on('change', () => {
+	if ($('#availableFolders')[0].selectedIndex > 0) {
+		$('#driveFolder').val($('#availableFolders').val())
+		$('#availableFolders')[0].selectedIndex = 0
+	}
+})
+
+chrome.runtime.onMessage.addListener(
+  (request) => {
+    if (request.initEvent == 'foldersLoaded') {
+        request.availableFolders.forEach((f) => {
+			$('#availableFolders').append(`<option>${f}</option>`)
+        })
+    }
+})
 
 window.onload = Kiosk.ui.load
