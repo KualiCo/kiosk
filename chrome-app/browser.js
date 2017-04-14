@@ -1,1 +1,3 @@
-window.onload = Kiosk.ui.load;
+/* globals Kiosk */
+
+window.onload = Kiosk.ui.load

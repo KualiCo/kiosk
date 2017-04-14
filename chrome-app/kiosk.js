@@ -2,115 +2,122 @@
 //TODO cleanup code formatting
 //TODO cleanup options UI
 
-var Kiosk = (function (Kiosk) {
-    'use strict';
+/*global chrome, jQuery, console*/
+window.Kiosk = (function (Kiosk, chrome, $, logger) {
+    'use strict'
 
-    var FS_INIT_PLACEHOLDER = 'kiosk_filesystem_initialized.txt';
+    const FS_INIT_PLACEHOLDER = 'kiosk_filesystem_initialized.txt'
 
-    var options;
-    // not configurable
-    var bgImages= new Array()
-    var screenSaverActive = false
+    let options,
+        screenSaverActive = false
 
     // stateful vars
-    var slideIndex = 0 // which slide are we displaying?
-    var idle = 0  // how idle is the system?
-    var delay = 0 // used to slow down killing screensaver on mouse move
-    var slideA = false // A/B slides to allow cross-fade
+    let slideIndex = 0, // which slide are we displaying?
+        idle = 0,  // how idle is the system?
+        delay = 0, // used to slow down killing screensaver on mouse move
+        slideA = false // A/B slides to allow cross-fade
 
     // preload images
-    var slideCache = new Array()
-    var i_idle = null
-    var i_slide = null
-    var i_goHome = null
+    let slideCache = [],
+        slideHandle = null,
+        goHomeHandle = null
 
     Kiosk.options = {
         defaults: {
-            fullscreen: true,               // if true, starts in fullscreen mode
-            drive_folder: 'KioskSamples',   // name of drive folder with slides for screensaver
-            inactivity_period: 90,          // how long until we start screensaver? seconds
-            go_home_period: 30,              // how long before we move the page back home? seconds
-            fade_interval: 1500,            // milliseconds cross fade
-            slide_interval: 6,                 // how long to show each slide
-            kiosk_demo_url: 'https://kiosk.kuali.co/demo.html' //Kiosk demo url
+            // if true, starts in fullscreen mode
+            fullscreen: true,
+            // name of drive folder with slides for screensaver
+            driveFolder: 'KioskSamples',
+            // how long until we start screensaver? seconds
+            inactivityPeriod: 90,
+            // how long before we move the page back home? seconds
+            goHomePeriod: 30,
+            // milliseconds cross fade
+            fadeInterval: 1500,
+            // how long to show each slide
+            slideInterval: 6,
+            //Kiosk demo url
+            kioskDemoUrl: 'https://kiosk.kuali.co/demo.html'
         },
-        save: function (options, callback) {
-            chrome.storage.sync.set(options, callback);
-            chrome.runtime.sendMessage({options_event: 'save'});
+
+        save(data, callback) {
+            chrome.storage.sync.set(data, callback)
+            chrome.runtime.sendMessage({ optionsEvent: 'save' })
         },
-        load: function (callback) {
-            chrome.storage.sync.get(this.defaults, callback);
+
+        load(callback) {
+            chrome.storage.sync.get(this.defaults, callback)
         },
-        reset: function(callback) {
-            this.save(this.defaults, callback);
+
+        reset(callback) {
+            this.save(this.defaults, callback)
         }
-    };
+    }
 
     function requestFilesystem(callback) {
-        chrome.syncFileSystem.requestFileSystem(function (fs) {
+        chrome.syncFileSystem.requestFileSystem((fs) => {
             if (fs) {
-                callback(null, fs);
+                callback(null, fs)
             } else {
-                callback('Unexpected error retrieving Chrome Syncable Filesystem.');
+                callback(
+                    'Unexpected error retrieving Chrome Syncable Filesystem.')
             }
-        });
+        })
     }
 
     function initSyncableFilesystem(fs, callback) {
-        fs.root.getFile(FS_INIT_PLACEHOLDER, {create: true}, 
-            function(directory) {
-                callback(null, directory);
-             },
-             function (err) { 
-                 callback(err);
-             });
+        fs.root.getFile(
+            FS_INIT_PLACEHOLDER,
+            { create: true },
+            (directory) => callback(null, directory),
+            (err) => callback(err)
+        )
     }
 
     function loadSlideFolder(fs, callback) {
-        chrome.storage.sync.get({
-            drive_folder: Kiosk.options.defaults.drive_folder
-        }, function(items) {
-           fs.root.getDirectory(items.drive_folder, {create: false}, 
-               function(directory) {
-                   readSlidesFromFolder(directory, prepSlides);
-                   callback(null, directory);
-                },
-                function (err) { 
-                    callback(err);
-                });
-        });
+        chrome.storage.sync.get(
+            { driveFolder: Kiosk.options.defaults.driveFolder },
+            (items) => {
+                fs.root.getDirectory(items.driveFolder, { create: false },
+                    (directory) => {
+                        readSlidesFromFolder(directory, prepSlides)
+                        callback(null, directory)
+                    },
+                (err) => callback(err))
+            }
+        )
     }
 
     function defaultSlides() {
-        debug('Using default slides');
+        debug('Using default slides')
 
         // load slide filenames into array
-        var slides = [];
+        let i, newSlide, slides = []
         for (i = 1; i <= 23; i++) {
-          var newSlide = (i < 10 ? "0" : "") + i + ".jpg"
-          slides.push(newSlide)
+            let slideNumPrefix = (i < 10 ? '0' : '')
+            newSlide = `${slideNumPrefix}${i}.jpg`
+            slides.push(newSlide)
         }
-    
-        prepSlides(null, slides);
+
+        prepSlides(null, slides)
     }
 
     function readSlidesFromFolder(directory, callback) {
-        var dirReader = directory.createReader();
-        var entries = [];
-
-        // Call the reader.readEntries() until no more results are returned.
-        var readEntries = function() {
-           dirReader.readEntries (function(results) {
-            if (!results.length) {
-                callback(null, entries);
-            } else {
-              entries = entries.concat(Array.prototype.slice.call(results || [], 0));
-              readEntries();
+        let dirReader = directory.createReader(),
+            entries = [],
+            readEntries = () => {
+               dirReader.readEntries((results) => {
+                if (!results.length) {
+                    callback(null, entries)
+                } else {
+                  entries = entries.concat(
+                    Array.prototype.slice.call(results || [], 0))
+                  readEntries()
+                }
+              }, (err) => callback(err) )
             }
-          }, function (err) { callback(err) });
-        };
 
-        readEntries(); // Start reading dirs.
+        readEntries() // Start reading dirs.
     }
 
     // Randomize the slide order
@@ -119,38 +126,39 @@ var Kiosk = (function (Kiosk) {
         // pull new list from google drive
         // shuffle
         if (!err) {
-            var slides = shuffle(slideFiles), i;
-            for (i=0; i < slides.length; i++) {
+            let i, slides = shuffle(slideFiles)
+            for (i = 0; i < slides.length; i++) {
                 slideCache[i] = new Image()
-                slideCache[i].src = typeof slides[i] === 'string' ? 'slides/' + slides[i] : slides[i].toURL();
+                slideCache[i].src =
+                    typeof slides[i] === 'string' ?
+                        `slides/${slides[i]}` : slides[i].toURL()
             }
         } else {
-            error('Error loading slides', err);
+            error('Error loading slides', err)
         }
     }
 
     function navigateTo(url) {
-        //debug("navigateTo(" + url + ")")
         document.querySelector('webview').src = url
     }
 
     function doLayout() {
-        var webview = document.querySelector('webview')
-        var windowWidth = document.documentElement.clientWidth
-        var windowHeight = document.documentElement.clientHeight
-        var webviewWidth = windowWidth
-        var webviewHeight = windowHeight
+        let webview = document.querySelector('webview'),
+            windowWidth = document.documentElement.clientWidth,
+            windowHeight = document.documentElement.clientHeight,
+            webviewWidth = windowWidth,
+            webviewHeight = windowHeight
 
-        webview.style.width = webviewWidth + 'px'
-        webview.style.height = webviewHeight + 'px'
+        webview.style.width = `${webviewWidth}px`
+        webview.style.height = `${webviewHeight}px`
     }
 
     // Fisher-Yates Shuffle
     function shuffle(array) {
-        var currentIndex = array.length, temporaryValue, randomIndex
+        let currentIndex = array.length, temporaryValue, randomIndex
 
         // While there remain elements to shuffle...
-        while (0 !== currentIndex) {
+        while ( currentIndex !== 0 ) {
             // Pick a remaining element...
             randomIndex = Math.floor(Math.random() * currentIndex)
             currentIndex -= 1
@@ -165,91 +173,86 @@ var Kiosk = (function (Kiosk) {
     }
 
     function debug(s) {
-        console.log(s)
+        logger.log(s)
     }
 
     function error(msg, e) {
-        console.log(e);
+        logger.log(e)
         if (e && e.name) {
-            console.log(name);
+            logger.log(name)
         }
         if (msg) {
-            console.log(msg);
-            toast('general_error', 'Error', msg, 0, true);
+            logger.log(msg)
+            toast('general_error', 'Error', msg, 0, true)
         }
     }
 
     function warn(msg, e) {
-        console.log(e);
+        logger.log(e)
         if (e && e.name) {
-            console.log(name);
+            logger.log(name)
         }
         if (msg) {
-            console.log(msg);
-            toast('general_warning', 'Warning', msg, 3000);
+            logger.log(msg)
+            toast('general_warning', 'Warning', msg, 3000)
         }
     }
 
     function toast(notifId, title, message, timeout, requireInteraction) {
-        chrome.notifications.create(notifId, {
-            type: 'basic',
-            title: title,
-            message: message,
-            iconUrl: '128.png',
-            isClickable: false,
-            requireInteraction: requireInteraction || false
-        }, function(notificationId) {
-            if (requireInteraction === false) {
-                setTimeout(function(){
-                    chrome.notifications.clear(notificationId);
-               }, timeout);
-           }
-        });
-    }
-
-    // hooked from setInterval above
-    function idleInterval() {
-        idle++
-        //debug("idle")
-        if (idle > options.inactivity_period && !screenSaverActive) {
-            startScreenSaver()
-        }
+        chrome.notifications.create(
+            notifId,
+            {
+                title,
+                message,
+                type: 'basic',
+                iconUrl: '128.png',
+                isClickable: false,
+                requireInteraction: requireInteraction || false
+            },
+            (notificationId) => {
+                if (requireInteraction === false) {
+                    setTimeout(() =>
+                        chrome.notifications.clear(notificationId), timeout)
+                }
+            }
+        )
     }
 
     // startup the screensaver
     function startScreenSaver() {
-        debug("startScreenSaver()")
-        clearInterval(i_slide)
-        clearInterval(i_goHome)
+        debug('startScreenSaver()')
+        clearInterval(slideHandle)
+        clearInterval(goHomeHandle)
         delay = 0 // slow down an accidental re-trigger
         screenSaverActive = true
-        $('#slideBg').css('display','block')
+        $('#slideBg').css('display', 'block')
         rotateSlide()
-        i_slide = setInterval(rotateSlide, options.slide_interval * 1000)
-        i_goHome = setTimeout(function() { navigateTo(options.kiosk_demo_url) }, options.go_home_period * 1000)
+        slideHandle = setInterval(rotateSlide, options.slideInterval * 1000)
+        goHomeHandle = setTimeout(() => navigateTo(options.kioskDemoUrl),
+            options.goHomePeriod * 1000)
     }
 
     // stop the screensaver
     function stopScreenSaver() {
         if (screenSaverActive) {
-            debug("stopScreenSaver()")
+            debug('stopScreenSaver()')
             screenSaverActive = false
             $('#slideA').fadeOut(0)
             $('#slideB').fadeOut(0)
-            $('#slideBg').css('display','none')
-            clearTimeout(i_goHome)
-            clearInterval(i_slide)
+            $('#slideBg').css('display', 'none')
+            clearTimeout(goHomeHandle)
+            clearInterval(slideHandle)
         }
     }
 
     function rotateSlide() {
-        var s;
+        let s
 
         if (screenSaverActive == false) {
             return
         }
 
-        if (slideIndex < slideCache.length-1) {
+        if (slideIndex < slideCache.length - 1) {
             slideIndex++
         } else {
             slideIndex = 0
@@ -257,59 +260,63 @@ var Kiosk = (function (Kiosk) {
 
         if (slideA) {
             slideA = false
-            s = document.getElementById("slideB")
+            s = document.getElementById('slideB')
             s.src = slideCache[slideIndex].src
-            $('#slideA').fadeOut(options.fade_interval)
-            $('#slideB').fadeIn(options.fade_interval)
+            $('#slideA').fadeOut(options.fadeInterval)
+            $('#slideB').fadeIn(options.fadeInterval)
         } else {
             slideA = true
-            s = document.getElementById("slideA")
+            s = document.getElementById('slideA')
             s.src = slideCache[slideIndex].src
-            $('#slideA').fadeIn(options.fade_interval)
-            $('#slideB').fadeOut(options.fade_interval)
+            $('#slideA').fadeIn(options.fadeInterval)
+            $('#slideB').fadeOut(options.fadeInterval)
         }
     }
 
     function onOptionsLoaded(data) {
-        options = data;
+        options = data
     }
 
     Kiosk.ui = {
-        toast: toast,
-        load: function() {
+        toast,
+        load() {
             window.onresize = doLayout
 
-            Kiosk.options.load(onOptionsLoaded);
+            Kiosk.options.load(onOptionsLoaded)
 
             chrome.runtime.onMessage.addListener(
-              function(request, sender, sendResponse) {
-                if (request.options_event == 'save') {
-                    Kiosk.options.load(onOptionsLoaded);
+              (request) => {
+                if (request.optionsEvent == 'save') {
+                    Kiosk.options.load(onOptionsLoaded)
                 }
-            });
+            })
 
-            var webview = document.querySelector('webview')
             doLayout()
 
             document.querySelector('#kuali-menu').onclick = function() {
-                navigateTo(options.kiosk_demo_url)
+                navigateTo(options.kioskDemoUrl)
             }
 
             // on start, run screen saver "stop" to prime everything properly
             screenSaverActive = true
             stopScreenSaver()
 
-            i_idle = setInterval(idleInterval, 1000)
+            setInterval(() => {
+                idle++
+                if (idle > options.inactivityPeriod && !screenSaverActive) {
+                    startScreenSaver()
+                }
+            }, 1000)
 
             // Zero the idle timer on mouse movement.
-            $(this).mousemove(function (e) {
+            $(this).mousemove(() => {
                 idle = 0
                 delay++
                 if (delay > 10) { // arbitrary # of events
                     stopScreenSaver()
                 }
             })
-            $(this).keypress(function (e) {
+            $(this).keypress(() => {
                 idle = 0
                 stopScreenSaver()
             })
@@ -317,75 +324,95 @@ var Kiosk = (function (Kiosk) {
             //DEBUG - starts screenshot immediately
             window.onkeyup = function(evt) {
                 if (!screenSaverActive) {
-                    if (evt.key === "S" && evt.shiftKey && evt.ctrlKey ) {
+                    if (evt.key === 'S' && evt.shiftKey && evt.ctrlKey ) {
                         startScreenSaver()
                     }
                 }
 
-                if (evt.key === "O" && evt.shiftKey && evt.ctrlKey ) {
-                    chrome.app.window.create("options.html");
+                if (evt.key === 'O' && evt.shiftKey && evt.ctrlKey ) {
+                    chrome.app.window.create('options.html')
                 }
             }
 
             //Configure notifications for service changes
-            chrome.syncFileSystem.onServiceStatusChanged.addListener(function (detail) {
-                if (detail.state === 'temporary_unavailable') {
-                    toast('service_status', 'Warning', 'Network connection lost', 3000);
-                } else if (detail.state === 'running') {
-                    toast('service_status', 'Info', 'Network connected', 3000);
-                } else if (detail.state === 'initializing') {
-                    toast('service_status', 'Info', 'Connecting to Drive', 1000);
-                } else if (detail.state === 'authentication_required') {
-                    toast('service_status', 'Error', 'Authentication required', 0, true);
-                } else if (detail.state === 'authentication_required') {
-                    toast('service_status', 'Error', 'Drive sync disabled', 0, true);
+            chrome.syncFileSystem.onServiceStatusChanged.addListener(
+                (detail) => {
+                    if (detail.state === 'temporary_unavailable') {
+                        toast('service_status',
+                            'Warning', 'Network connection lost', 3000)
+                    } else if (detail.state === 'running') {
+                        toast('service_status',
+                            'Info', 'Network connected', 3000)
+                    } else if (detail.state === 'initializing') {
+                        toast('service_status',
+                            'Info', 'Connecting to Drive', 1000)
+                    } else if (detail.state === 'authentication_required') {
+                        toast('service_status',
+                            'Error', 'Authentication required', 0, true)
+                    } else if (detail.state === 'authentication_required') {
+                        toast('service_status',
+                            'Error', 'Drive sync disabled', 0, true)
+                    }
+                    debug(detail.description)
                 }
-                debug(detail.description);
-            });
+            )
 
             //Configure notifications file updates
-            chrome.syncFileSystem.onFileStatusChanged.addListener(function (detail) {
-                toast('file_status', 'Sync Update', detail.fileEntry.name + " " + detail.action + " [" + detail.direction, 1500) + "]";
-                debug(detail);
-            });
+            chrome.syncFileSystem.onFileStatusChanged.addListener((detail) => {
+                toast('file_status', 'Sync Update',
+                    `${detail.fileEntry.name} ${detail.action} [${detail.direction}]`,
+                    1500)
+                debug(detail)
+            })
 
-            requestFilesystem(function(err, fs) {
-                if (err) {            
-                    warn('Unable to read drive filesystem. Default slides will be used.', err);
+            const defaultSlidesMsg = 'Default slides will be used.'
+
+            requestFilesystem((err, fs) => {
+                if (err) {
+                    warn(
+                        `Unable to read drive filesystem. ${defaultSlidesMsg}`,
+                        err)
                     if (chrome.runtime.lastError) {
-                        warn(chrome.runtime.lastError.message, chrome.runtime.lastError);
+                        warn(chrome.runtime.lastError.message,
+                             chrome.runtime.lastError)
                     }
 
-                    defaultSlides();
+                    defaultSlides()
                 } else {
-                    initSyncableFilesystem(fs, function(err, rootDirectory) {
-                        if (err) {
-                            warn('Unable to init syncable filesystem. Default slides will be used.', err);
+                    initSyncableFilesystem(fs, (err1) => {
+                        if (err1) {
+                            warn(
+                                `Unable to init syncable filesystem. ${defaultSlidesMsg}`,
+                                err)
                             if (chrome.runtime.lastError) {
-                                warn(chrome.runtime.lastError.message, chrome.runtime.lastError);
+                                warn(chrome.runtime.lastError.message,
+                                     chrome.runtime.lastError)
                             }
 
-                            defaultSlides();
+                            defaultSlides()
                         } else {
                             //Get slides from specificed folder
-                            loadSlideFolder(fs, function (err, directory) {
-                                if (err) {
-                                    warn('Unable to read slide folder. Default slides will be used.', err)
+                            loadSlideFolder(fs, (err2, directory) => {
+                                if (err2) {
+                                    warn(
+                                        `Unable to read slide folder. ${defaultSlidesMsg}`,
+                                        err)
                                     if (chrome.runtime.lastError) {
-                                        warn(chrome.runtime.lastError.message, chrome.runtime.lastError);
+                                        warn(chrome.runtime.lastError.message,
+                                             chrome.runtime.lastError)
                                     }
 
-                                    defaultSlides();
+                                    defaultSlides()
                                 } else {
-                                    readSlidesFromFolder(directory, prepSlides);
+                                    readSlidesFromFolder(directory, prepSlides)
                                 }
-                            });
+                            })
                         }
                     })
                 }
-            });
+            })
         }
     }
 
-    return Kiosk;
-}(Kiosk || {}));
+    return Kiosk
+}(window.Kiosk || {}, chrome, jQuery, console))
