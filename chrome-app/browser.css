@@ -15,6 +15,13 @@ body {
   bottom: 0; left: 0;
   display: block;
   z-index: 10000;
+  box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+}
+
+#kuali-menu img {
+  box-sizing: inherit;
+  -webkit-box-sizing: inherit;
 }
 
 .slidebase {

@@ -20,7 +20,11 @@
     "power",
     "clipboardRead",
     "desktopCapture",
-    "clipboardWrite"
+    "clipboardWrite",
+    "storage",
+    "unlimitedStorage",
+    "syncFileSystem",
+    "notifications"
   ],
   "kiosk_enabled": true
 }

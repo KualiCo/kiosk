@@ -138,7 +138,7 @@ function startScreenSaver() {
 function stopScreenSaver() {
   if (screenSaverActive) {
       debug("stopScreenSaver()")
-	  screenSaverActive = false
+    screenSaverActive = false
       $('#slideA').fadeOut(0)
       $('#slideB').fadeOut(0)
       $('#slideBg').css('display','none')

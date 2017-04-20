@@ -1,18 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    
+    <!-- Bootstrap -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="browser.css">
-    <script src="browser.js"></script>
-    <script src="jquery.min.js"></script>
-    <!--script src="gapi.client.js"></script-->
+  </head>
   <body>
     <div id="kuali-menu">
       <img src="icon-1.png">
     </div>
-	<div id="slideBg" class="slidebase">
-	  <img id="slideA" class="slide" src="slides/01.jpg">
-	  <img id="slideB" class="slide" src="slides/02.jpg">
-	</div>
+    <div id="slideBg" class="slidebase">
+      <img id="slideA" class="slide" src="slides/01.jpg">
+      <img id="slideB" class="slide" src="slides/02.jpg">
+    </div>
     <webview src="https://kiosk.kuali.co/demo.html" style="width:100%; height:100%"></webview>
+    <!-- Modal -->
+    <div class="modal fade" id="optionsModal" role="dialog">
+      <div class="modal-dialog">
+        
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Options</h4>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label for="kioskDemoUrl">Demo Url:</label>
+                <input type="text" class="form-control" id="kioskDemoUrl">
+              </div>
+              <div class="form-group form-inline">
+                <label for="driveFolder">Google Drive Folder:</label>
+                <input type="text" class="form-control" id="driveFolder">
+                <select class="form-control" id="availableFolders"><option>- Available Folders -</option></select>
+              </div>
+              <div class="form-group">
+                <label for="inactivityPeriod">Inactivity Period (seconds):</label>
+                <input type="text" class="form-control" id="inactivityPeriod">
+              </div>
+              <div class="form-group">
+                <label for="goHomePeriod">Go Home Period (seconds):</label>
+                <input type="text" class="form-control" id="goHomePeriod">
+              </div>
+              <div class="form-group">
+                <label for="fadeInterval">Fade Interval (milliseconds)</label>
+                <input type="text" class="form-control" id="fadeInterval">
+              </div>
+              <div class="form-group">
+                <label for="slideInterval">Slide Interval (seconds)</label>
+                <input type="text" class="form-control" id="slideInterval">
+              </div>
+              <div class="checkbox">
+                <label><input type="checkbox" id="fullscreen">Launch Fullscreen</label>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button id="save" type="button" class="btn btn-default" >Save</button>
+            <button id="reset" type="button" class="btn btn-default" >Reset To Defaults</button>
+            <button id="restart" type="button" class="btn btn-default" >Restart Device</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="jquery.min.js"></script>
+    <script src="kiosk.js"></script>
+    <script src="browser.js"></script>
+    <!--script src="gapi.client.js"></script-->
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="bootstrap/js/bootstrap.min.js"></script>
   </body>
 </html>
